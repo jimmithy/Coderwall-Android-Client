@@ -16,16 +16,13 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.ref.SoftReference;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.HashMap;
 
 public class BadgesAdapter extends BaseAdapter {
 
     private static final String TAG = "BadgesAdapter";
-    private static HashMap<String, SoftReference<Bitmap>> imgCache = new HashMap<String, SoftReference<Bitmap>>();
     private JSONArray badges;
     private Context context;
 
@@ -47,7 +44,7 @@ public class BadgesAdapter extends BaseAdapter {
         try {
             return badges.get(position);
         } catch (JSONException e) {
-            Log.i(TAG, "");
+            Log.i(TAG, "Cannot return badge item.");
         }
         return null;
     }
@@ -75,9 +72,9 @@ public class BadgesAdapter extends BaseAdapter {
         try {
             JSONObject badge = badges.getJSONObject(position);
 
-            v.name.setText(badge.getString("name"));
-            v.desc.setText(badge.getString("description"));
-            v.badge.setImageBitmap(grabImage(badge.getString("badge")));
+            v.name.setText(badge.getString(CoderwallActivity.API_KEY_BADGES_NAME));
+            v.desc.setText(badge.getString(CoderwallActivity.API_KEY_BADGES_DESC));
+            v.badge.setImageBitmap(grabImage(badge.getString(CoderwallActivity.API_KEY_BADGES_BADGE)));
 
         } catch (JSONException e) {
             // TODO Auto-generated catch block

@@ -32,6 +32,21 @@ import java.net.URLConnection;
 
 public class CoderwallActivity extends Activity {
     private static final String TAG = "CoderwallActivity";
+
+    private static final String API_KEY_NAME = "name";
+    private static final String API_KEY_USERNAME = "username";
+    private static final String API_KEY_LOCATION = "location";
+    private static final String API_KEY_BADGES = "badges";
+    public static final String API_KEY_BADGES_NAME = "name";
+    public static final String API_KEY_BADGES_DESC = "description";
+    public static final String API_KEY_BADGES_BADGE = "badge";
+    private static final String API_KEY_ACCOUNTS = "accounts";
+    private static final String API_KEY_ACCOUNTS_GITHUB = "github";
+
+    private static final String URL_GITHUB = "https://www.github.com";
+    private static final String URL_CODERWALL_PREFIX = "http://coderwall.com/";
+    private static final String URL_CODERWALL_POSTFIX = ".json";
+
     private ListView badgesList;
     private BadgesAdapter badgeAdapter;
 
@@ -55,8 +70,8 @@ public class CoderwallActivity extends Activity {
     public void promptForUser() {
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
-        alert.setTitle("Coderwall for Android");
-        alert.setMessage("Please enter the username below");
+        alert.setTitle(R.string.app_name);
+        alert.setMessage(R.string.enter_username);
 
         final EditText input = new EditText(this);
         alert.setView(input);
@@ -64,8 +79,8 @@ public class CoderwallActivity extends Activity {
         alert.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 dialog.dismiss();
-                new getCWProfileTask(CoderwallActivity.this).execute("http://coderwall.com/"
-                        + input.getText().toString() + ".json");
+                new getCWProfileTask(CoderwallActivity.this).execute(URL_CODERWALL_PREFIX
+                        + input.getText().toString() + URL_CODERWALL_POSTFIX);
             }
         });
 
@@ -74,7 +89,7 @@ public class CoderwallActivity extends Activity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(0, 0, 0, "Search");
+        menu.add(0, 0, 0, R.string.menu_search);
         return true;
     }
 
@@ -102,7 +117,7 @@ public class CoderwallActivity extends Activity {
         }
 
         protected void onPreExecute() {
-            pDialog = ProgressDialog.show(context, "", "Loading...");
+            pDialog = ProgressDialog.show(context, "", getString(R.string.loading));
         }
 
         @Override
@@ -124,7 +139,7 @@ public class CoderwallActivity extends Activity {
             } catch (MalformedURLException e) {
                 Log.e(TAG, "Error with URL");
             } catch (IOException e) {
-                Log.e(TAG, "Error with URL");
+                Log.e(TAG, "Error connecting to URL");
             }
 
             return "";
@@ -134,20 +149,21 @@ public class CoderwallActivity extends Activity {
             try {
                 JSONObject jsonOBJ = new JSONObject(json);
 
-                txtFullName.setText(jsonOBJ.getString("name"));
-                txtUserName.setText("(" + jsonOBJ.getString("username") + ")");
-                txtLocation.setText(jsonOBJ.getString("location"));
-                badgeAdapter.setItems(jsonOBJ.getJSONArray("badges"));
+                txtFullName.setText(jsonOBJ.getString(API_KEY_NAME));
+                txtUserName.setText("(" + jsonOBJ.getString(API_KEY_USERNAME) + ")");
+                txtLocation.setText(jsonOBJ.getString(API_KEY_LOCATION));
+                badgeAdapter.setItems(jsonOBJ.getJSONArray(API_KEY_BADGES));
 
-                JSONObject userAccounts = jsonOBJ.optJSONObject("accounts");
-                final String githubUser = userAccounts.optString("github");
-                if (githubUser != null) {
+                JSONObject userAccounts = jsonOBJ.optJSONObject(API_KEY_ACCOUNTS);
+                final String githubUser = userAccounts.optString(API_KEY_ACCOUNTS_GITHUB);
+
+                if (!githubUser.equals("")) {
                     imgGitHub.setVisibility(View.VISIBLE);
                     imgGitHub.setOnClickListener(new OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri
-                                    .parse("http://github.com/" + githubUser));
+                                    .parse(URL_GITHUB + githubUser));
                             startActivity(browserIntent);
                         }
                     });
@@ -157,7 +173,12 @@ public class CoderwallActivity extends Activity {
 
             } catch (JSONException e) {
                 Log.e(TAG, "Error Parsing JSON", e);
-                txtFullName.setText("Error Finding User!");
+                //Show Error Message
+                txtFullName.setText(R.string.error);
+                txtLocation.setText(R.string.error_desc);
+                //Hide others
+                txtUserName.setText("");
+                imgGitHub.setVisibility(View.GONE);
             } finally {
                 if (pDialog.isShowing()) pDialog.dismiss();
             }

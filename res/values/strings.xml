@@ -3,5 +3,10 @@
 
     <string name="hello">Hello World, CoderwallActivity!</string>
     <string name="app_name">Coderwall for Android</string>
+    <string name="enter_username">Please enter a coderwall username</string>
+    <string name="menu_search">Search</string>
+    <string name="loading">Loading&#8230;</string>
+    <string name="error">Error Finding User</string>
+    <string name="error_desc">Please confirm you have titled the username correctly and that you are connected to the internet.\n\nPlease press the menu button to search for another user.</string>
 
 </resources>
